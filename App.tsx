@@ -9,13 +9,18 @@ import { SmartSearch } from './pages/SmartSearch';
 import { AboutUs } from './pages/AboutUs';
 import { ContactUs } from './pages/ContactUs';
 import { Cart } from './pages/Cart';
-import { getMedicines, getUser, getInitialOrders } from './services/dataService';
-import { Medicine, Order, OrderStatus } from './types';
+import { Login } from './pages/Login';
+import { getMedicines, getInitialOrders } from './services/dataService';
+import { Medicine, Order, OrderStatus, UserProfile as UserProfileType } from './types';
 import { Menu, X } from 'lucide-react';
 
-const Layout: React.FC = () => {
+interface LayoutProps {
+  user: UserProfileType;
+  onLogout: () => void;
+}
+
+const Layout: React.FC<LayoutProps> = ({ user, onLogout }) => {
   const [medicines] = useState(getMedicines());
-  const [user] = useState(getUser());
   const [orders, setOrders] = useState<Order[]>(getInitialOrders());
   const [cart, setCart] = useState<{ medicine: Medicine; quantity: number }[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -100,7 +105,8 @@ const Layout: React.FC = () => {
         </div>
 
         <div className="p-4 md:p-8 max-w-7xl mx-auto w-full flex-1">
-          <Outlet context={{ medicines, user, orders, addToCart, removeFromCart, updateCartQuantity, cart, placeOrder }} />
+          {/* Pass user and logout handler to children */}
+          <Outlet context={{ medicines, user, orders, addToCart, removeFromCart, updateCartQuantity, cart, placeOrder, onLogout }} />
         </div>
       </main>
     </div>
@@ -108,19 +114,25 @@ const Layout: React.FC = () => {
 };
 
 export default function App() {
+  const [user, setUser] = useState<UserProfileType | null>(null);
+
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<NewOrder />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="pending" element={<PendingOrders />} />
-          <Route path="history" element={<OrderHistory />} />
-          <Route path="smart-search" element={<SmartSearch />} />
-          <Route path="profile" element={<UserProfile />} />
-          <Route path="about" element={<AboutUs />} />
-          <Route path="contact" element={<ContactUs />} />
-        </Route>
+        {!user ? (
+          <Route path="*" element={<Login onLogin={setUser} />} />
+        ) : (
+          <Route path="/" element={<Layout user={user} onLogout={() => setUser(null)} />}>
+            <Route index element={<NewOrder />} />
+            <Route path="cart" element={<Cart />} />
+            <Route path="pending" element={<PendingOrders />} />
+            <Route path="history" element={<OrderHistory />} />
+            <Route path="smart-search" element={<SmartSearch />} />
+            <Route path="profile" element={<UserProfile />} />
+            <Route path="about" element={<AboutUs />} />
+            <Route path="contact" element={<ContactUs />} />
+          </Route>
+        )}
       </Routes>
     </HashRouter>
   );

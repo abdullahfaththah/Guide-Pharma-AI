@@ -1,22 +1,32 @@
 import React, { useState } from 'react';
 import { UserProfile as UserProfileType } from '../types';
-import { User, MapPin, Phone, FileBadge, Building, CreditCard, Shield, Eye, EyeOff } from 'lucide-react';
+import { User, MapPin, Phone, FileBadge, Building, CreditCard, Shield, Eye, EyeOff, LogOut } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { Button } from '../components/Button';
 
 interface ContextType {
   user: UserProfileType;
+  onLogout: () => void;
 }
 
 export const UserProfile: React.FC = () => {
-  const { user } = useOutletContext<ContextType>();
+  const { user, onLogout } = useOutletContext<ContextType>();
   const [showPII, setShowPII] = useState(false);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="text-center md:text-left">
-        <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
-        <p className="text-gray-500">Manage your pharmacy details and personal information.</p>
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
+          <p className="text-gray-500">Manage your pharmacy details and personal information.</p>
+        </div>
+        <Button 
+            onClick={onLogout} 
+            variant="danger" 
+            className="flex items-center gap-2 shadow-sm"
+        >
+            <LogOut className="w-4 h-4" /> Log Out
+        </Button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
